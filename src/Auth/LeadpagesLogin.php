@@ -48,22 +48,23 @@ abstract class LeadpagesLogin implements LeadpagesToken
     public function getUser($username, $password)
     {
         $authHash = $this->hashUserNameAndPassword($username, $password);
-        $body     = json_encode(['clientType' => 'wp-plugin']);
+        $body = json_encode(['clientType' => 'wp-plugin']);
         try {
-            $response       = $this->client->post(
-              $this->loginurl, //url
-              [
-                'headers' => ['Authorization' => 'Basic ' . $authHash],
-                'body'    => $body //wp-plugin value makes session not expire
-              ]);
+            $response = $this->client->post(
+                $this->loginurl, //url
+                [
+                    'headers' => ['Authorization' => 'Basic ' . $authHash],
+                    'verify' => false,
+                    'body' => $body //wp-plugin value makes session not expire
+                ]);
             $this->response = $response->getBody();
             return $this;
 
         } catch (ClientException $e) {
-            $response       = [
-              'code'     => $e->getCode(),
-              'response' => $e->getMessage(),
-              'error'    => (bool)true
+            $response = [
+                'code' => $e->getCode(),
+                'response' => $e->getMessage(),
+                'error' => (bool)true
             ];
             $this->response = json_encode($response);
             return $this;
@@ -85,17 +86,18 @@ abstract class LeadpagesLogin implements LeadpagesToken
         $body = json_encode(['clientType' => 'wp-plugin']);
         try {
             $response = $this->client->post(
-              $this->refreshUserToken, //url
-              [
-                'headers' => ['LP-Security-Token' => $this->token],
-                'body'    => $body //wp-plugin value makes session not expire
-              ]);
+                $this->refreshUserToken, //url
+                [
+                    'headers' => ['LP-Security-Token' => $this->token],
+                    'verify' => false,
+                    'body' => $body //wp-plugin value makes session not expire
+                ]);
             return json_decode($response->getBody(), true);
         } catch (ClientException $e) {
-            $response       = [
-              'code'     => $e->getCode(),
-              'response' => $e->getMessage(),
-              'error'    => (bool)true
+            $response = [
+                'code' => $e->getCode(),
+                'response' => $e->getMessage(),
+                'error' => (bool)true
             ];
             $this->response = json_encode($response);
             return $this;
@@ -115,10 +117,11 @@ abstract class LeadpagesLogin implements LeadpagesToken
     {
         try {
             $response = $this->client->get(
-              $this->loginCheckUrl,
-              [
-                'headers' => ['LP-Security-Token' => $this->token]
-              ]);
+                $this->loginCheckUrl,
+                [
+                    'headers' => ['LP-Security-Token' => $this->token],
+                    'verify' => false,
+                ]);
             //return true as token is good
             $responseArray = json_decode($response->getBody(), true);
             if (isset($responseArray['securityToken'])) {
@@ -141,10 +144,11 @@ abstract class LeadpagesLogin implements LeadpagesToken
     {
         try {
             $response = $this->client->get(
-              $this->userSessionCheckUrl,
-              [
-                'headers' => ['LP-Security-Token' => $this->token]
-              ]);
+                $this->userSessionCheckUrl,
+                [
+                    'headers' => ['LP-Security-Token' => $this->token],
+                    'verify' => false,
+                ]);
             //return true as token is good
             $response = json_decode($response->getBody(), true);
         } catch (ClientException $e) {
@@ -207,9 +211,9 @@ abstract class LeadpagesLogin implements LeadpagesToken
     public function parseException($e, $message = '')
     {
         $response = [
-          'code'     => $e->getCode(),
-          'response' => $message . ' ' . $e->getMessage(),
-          'error'    => (bool)true
+            'code' => $e->getCode(),
+            'response' => $message . ' ' . $e->getMessage(),
+            'error' => (bool)true
         ];
         return $response;
     }
